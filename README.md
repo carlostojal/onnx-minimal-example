@@ -25,8 +25,8 @@ or, for docker:
 
 ## Running
 ### Bare metal
-- Run the command ```./onnx_minimal_example```.
+- Run the command ```./onnx_minimal_example <path_to_image> <path_to_model>```.
 
 ### Docker - TODO
-- Run the command ```docker run --rm onnx_minimal_example```.
+- Run the command ```docker run -it --rm onnx_minimal_example```.
 

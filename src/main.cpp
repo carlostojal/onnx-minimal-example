@@ -1,12 +1,12 @@
 #include <iostream>
+#include <onnx_minimal/Utils.h>
+
+using namespace onnx_minimal;
 
 int main(int argc, char* argv[]) {
 
-	// to prevent unused variable warnings
-	(void) argc;
-	(void) argv;
-
-	std::cout << "Hello World" << std::endl;
+	// parse arguments
+	args_t args = Utils::parse_args(argc, argv);
 
 	return 0;
 }

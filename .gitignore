@@ -1,1 +1,4 @@
 build/
+model/
+*.onnx
+*.pth
