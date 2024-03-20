@@ -13,4 +13,4 @@ RUN cmake ..
 RUN make -j4
 
 # run the app
-CMD ["./onnx_minimal_example", "path/to/image.jpg", "path/to/model.onnx"]
+CMD ["./onnx_minimal_example", "path/to/image.jpg", "../model/damoyolo_fsoco.onnx"]
