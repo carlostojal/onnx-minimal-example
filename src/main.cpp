@@ -64,16 +64,18 @@ int main(int argc, char* argv[]) {
 		std::cerr << "Could not read the image: " << args.img_path << std::endl;
 		return 1;
 	}
+	// convert the image from BGR to RGB
+	cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
 
 	// preprocess the input image
 	cv::Mat img_resized;
 	cv::resize(img, img_resized, cv::Size(image_shape[2], image_shape[3]));
 
-	// convert the input image to a tensor
+	// convert the input image () to a tensor
 	std::vector<float> input_tensor_values;
 	for (int i = 0; i < image_shape[2]; i++) {
 		for (int j = 0; j < image_shape[3]; j++) {
-			cv::Vec3b pixel = img_resized.at<cv::Vec3b>(i, j);
+			cv::Vec3b pixel = img_resized.at<cv::Vec3b>(j, i);
 			input_tensor_values.push_back(pixel[0]);
 			input_tensor_values.push_back(pixel[1]);
 			input_tensor_values.push_back(pixel[2]);
@@ -95,6 +97,41 @@ int main(int argc, char* argv[]) {
 
 	// print the inference time
 	std::cout << "Inference time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+
+	// extract the probability tensor
+	float* prob_tensor_values = output_tensors[0].GetTensorMutableData<float>();
+
+	// extract the bounding box tensor
+	float* bbox_tensor_values = output_tensors[1].GetTensorMutableData<float>();
+
+	// print the probability tensor values
+	/*
+	for(int i = 0; i < prob_shape[1]; i++) {
+		for(int j = 0; j < prob_shape[2]; j++) {
+			std::cout << prob_tensor_values[i * prob_shape[2] + j] << " ";
+		}
+		std::cout << std::endl;
+	}*/
+
+	// perform non-maximum suppression
+	std::vector<bbox_t> bboxes = Utils::nms_iou(bbox_tensor_values, prob_tensor_values, bbox_shape[1], prob_shape[2], 0.5, 0.5);
+
+	for(bbox_t bbox : bboxes) {
+		std::cout << "Class ID: " << bbox.class_id << ", Score: " << bbox.score << ", Bounding box: (" << bbox.x << ", " << bbox.y << ", " << bbox.w << ", " << bbox.h << ")" << std::endl;
+	}
+
+	// draw the bounding boxes
+	for (bbox_t bbox : bboxes) {
+		cv::rectangle(img, cv::Point(bbox.x, bbox.y), cv::Point(bbox.x + bbox.w, bbox.y + bbox.h), cv::Scalar(0, 255, 0), 2);
+		cv::putText(img, std::to_string(bbox.class_id), cv::Point(bbox.x, bbox.y), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 255, 0), 2);
+	}
+
+	// save the output image
+	cv::imwrite("output.jpg", img);
+	std::cout << "Output image saved as output.jpg" << std::endl;
+
+	// release the session
+	delete session;
 
 	return 0;
 }
