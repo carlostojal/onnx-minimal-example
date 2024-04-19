@@ -96,4 +96,25 @@ namespace onnx_minimal {
         return img_normalized;
     }
 
+    cv::Mat Utils::pad_to_shape(cv::Mat img, int target_width, int target_height) {
+
+        // get the current image size
+        int img_width = img.cols;
+        int img_height = img.rows;
+
+        // calculate the padding values
+        int pad_left = (target_width - img_width) / 2;
+        int pad_right = target_width - img_width - pad_left;
+        int pad_top = (target_height - img_height) / 2;
+        int pad_bottom = target_height - img_height - pad_top;
+
+        std::cout << "Pad left: " << pad_left << ", pad right: " << pad_right << ", pad top: " << pad_top << ", pad bottom: " << pad_bottom << std::endl;
+
+        // apply the padding
+        cv::Mat img_padded;
+        cv::copyMakeBorder(img, img_padded, pad_top, pad_bottom, pad_left, pad_right, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+
+        return img_padded;
+    }
+
 } // namespace onnx_minimal

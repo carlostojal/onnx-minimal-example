@@ -29,6 +29,7 @@ namespace onnx_minimal {
             static args_t parse_args(int argc, char* argv[]);
             static std::vector<onnx_minimal::bbox_t> nms_iou(float* boxes, float* scores, int num_boxes, int num_classes, float iou_threshold, float score_threshold);
             static cv::Mat z_score_normalize(cv::Mat img);
+            static cv::Mat pad_to_shape(cv::Mat img, int target_width, int target_height);
         
     };
 } // namespace onnx_minimal

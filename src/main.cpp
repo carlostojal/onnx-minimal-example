@@ -69,10 +69,12 @@ int main(int argc, char* argv[]) {
 
 	// preprocess the input image
 	cv::Mat img_resized;
-	cv::resize(img, img_resized, cv::Size(image_shape[2], image_shape[3]));
+	cv::resize(img, img_resized, cv::Size(416, 416));
 	img_resized.convertTo(img_resized, CV_32FC3);
 	// normalize the image using z-score normalization
 	img_resized = Utils::z_score_normalize(img_resized);
+	// pad the image to the target shape
+	img_resized = Utils::pad_to_shape(img_resized, image_shape[3], image_shape[2]);
 
 	// convert the input image () to a tensor
 	std::vector<float> input_tensor_values(img_resized.rows * img_resized.cols * img_resized.channels());
@@ -101,13 +103,12 @@ int main(int argc, char* argv[]) {
 	float* bbox_tensor_values = output_tensors[1].GetTensorMutableData<float>();
 
 	// print the probability tensor values
-	/*
 	for(int i = 0; i < prob_shape[1]; i++) {
 		for(int j = 0; j < prob_shape[2]; j++) {
 			std::cout << prob_tensor_values[i * prob_shape[2] + j] << " ";
 		}
 		std::cout << std::endl;
-	}*/
+	}
 
 	// perform non-maximum suppression
 	std::vector<bbox_t> bboxes = Utils::nms_iou(bbox_tensor_values, prob_tensor_values, bbox_shape[1], prob_shape[2], 0.5, 0.5);
