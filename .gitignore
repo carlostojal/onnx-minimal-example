@@ -2,3 +2,4 @@ build/
 model/
 *.onnx
 *.pth
+.vscode/
