@@ -72,4 +72,28 @@ namespace onnx_minimal {
         return nms_bboxes;
     }
 
+    cv::Mat Utils::z_score_normalize(cv::Mat img) {
+
+        // split the channels, one per matrix
+        cv::Mat img_channels[3];
+        cv::split(img, img_channels);
+
+        // normalize each channel
+        for(short i = 0; i < 3; i++) {
+            // get the mean and std deviation values
+            cv::Scalar mean, std_dev;
+            cv::meanStdDev(img_channels[i], mean, std_dev);
+            float mean_val = mean.val[0];
+            float std_dev_val = std_dev.val[0];
+            // apply z-score normalization
+            img_channels[i] = (img_channels[i] - mean_val) / std_dev_val;
+        }
+
+        // merge the channels back
+        cv::Mat img_normalized;
+        cv::merge(img_channels, 3, img_normalized);
+
+        return img_normalized;
+    }
+
 } // namespace onnx_minimal

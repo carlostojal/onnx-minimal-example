@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <opencv2/opencv.hpp>
 
 namespace onnx_minimal {
 
@@ -27,6 +28,7 @@ namespace onnx_minimal {
         public:
             static args_t parse_args(int argc, char* argv[]);
             static std::vector<onnx_minimal::bbox_t> nms_iou(float* boxes, float* scores, int num_boxes, int num_classes, float iou_threshold, float score_threshold);
+            static cv::Mat z_score_normalize(cv::Mat img);
         
     };
 } // namespace onnx_minimal
