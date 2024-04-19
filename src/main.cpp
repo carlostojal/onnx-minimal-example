@@ -70,17 +70,13 @@ int main(int argc, char* argv[]) {
 	// preprocess the input image
 	cv::Mat img_resized;
 	cv::resize(img, img_resized, cv::Size(image_shape[2], image_shape[3]));
+	img_resized.convertTo(img_resized, CV_32FC3);
+	// normalize the image using z-score normalization
+	img_resized = Utils::z_score_normalize(img_resized);
 
 	// convert the input image () to a tensor
-	std::vector<float> input_tensor_values;
-	for (int i = 0; i < image_shape[2]; i++) {
-		for (int j = 0; j < image_shape[3]; j++) {
-			cv::Vec3b pixel = img_resized.at<cv::Vec3b>(j, i);
-			input_tensor_values.push_back(pixel[0]);
-			input_tensor_values.push_back(pixel[1]);
-			input_tensor_values.push_back(pixel[2]);
-		}
-	}
+	std::vector<float> input_tensor_values(img_resized.rows * img_resized.cols * img_resized.channels());
+	memcpy(input_tensor_values.data(), img_resized.data, input_tensor_values.size() * sizeof(float));
 	Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, input_tensor_values.data(), input_tensor_values.size(), image_shape.data(), image_shape.size());
 
 	// run the inference (names from ONNX introspection in Netron)
